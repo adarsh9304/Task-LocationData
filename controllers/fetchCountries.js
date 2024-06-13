@@ -1,14 +1,12 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { promises as fs } from "fs";
+import path from "path";
+import { __dirname } from "../config/filepath.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dataPath = path.join(__dirname, '../data/countryData.json');
+const countryDataPath = path.join(__dirname, "../data/countryData.json");
 
 export const fetchCountries = async (req, res) => {
   try {
-    const data = await fs.readFile(dataPath, 'utf-8');
+    const data = await fs.readFile(countryDataPath, 'utf-8');
     
     const allCountriesData = JSON.parse(data);
     
