@@ -9,12 +9,12 @@ const dataPath = path.join(__dirname, '../data/countryData.json');
 export const fetchStates = async (req, res) => {
   try {
     const {country_id}=req.query;
+
     if (!country_id) {
         return res.status(400).json({ 
             error: 'country_id parameter is required' 
         });
       }
-    console.log(country_id);
 
     const data = await fs.readFile(dataPath, 'utf-8');
     
@@ -28,6 +28,13 @@ export const fetchStates = async (req, res) => {
     }
    
     const matchCountry=allCountriesData.filter(((country)=>country_id.includes(country.id)))
+
+    if (matchCountry.length === 0) {
+      return res.status(404).json({
+        data: [],
+        message: "No matching countries found for the given country IDs",
+      });
+    }
 
     let states = [];
 

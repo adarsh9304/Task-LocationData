@@ -9,7 +9,13 @@ const dataPath = path.join(__dirname, "../data/countryData.json");
 export const fetchCities = async (req, res) => {
   try {
     const { country_id, state_id } = req.query;
-    console.log(country_id, state_id);
+
+    if (!country_id || !state_id) {
+      return res.status(400).json({
+        data: [],
+        message: "country_id and state_id are required",
+      });
+    }
 
     const data = await fs.readFile(dataPath, "utf-8");
 
@@ -26,13 +32,20 @@ export const fetchCities = async (req, res) => {
       country_id.includes(country.id)
     );
 
+    if (matchCountry.length === 0) {
+      return res.status(404).json({
+        data: [],
+        message: "No matching countries found for the given country IDs",
+      });
+    }
+
     let cities = [];
 
     matchCountry.forEach((country) => {
       country.states.forEach((state) => {
         if (state_id.includes(state.id)) {
           state.cities.forEach((city) => {
-            cities.push(city);
+            cities.push(city.name);
           });
         }
       });
