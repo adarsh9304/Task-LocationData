@@ -38,11 +38,17 @@ export const fetchStates = async (req, res) => {
 
     let states = [];
 
-    matchCountry.forEach(country => {
-        country.states.forEach(state => {
-            states.push(state.name);
-        });
-    });
+    if (Array.isArray(matchCountry)) {
+      matchCountry.forEach((country) => {
+        if (Array.isArray(country.states)) {
+          country.states.forEach((state) => {
+            if (state && state.name) {
+              states.push(state.name);
+            }
+          });
+        }
+      });
+    }
     
     if (states.length === 0) {
       return res.status(404).json({

@@ -38,19 +38,24 @@ export const fetchCities = async (req, res) => {
         message: "No matching countries found for the given country IDs",
       });
     }
-
     let cities = [];
 
-    matchCountry.forEach((country) => {
-      country.states.forEach((state) => {
-        if (state_id.includes(state.id)) {
-          state.cities.forEach((city) => {
-            cities.push(city.name);
+    if (Array.isArray(matchCountry)) {
+      matchCountry.forEach((country) => {
+        if (Array.isArray(country.states)) {
+          country.states.forEach((state) => {
+            if (state_id.includes(state.id) && Array.isArray(state.cities)) {
+              state.cities.forEach((city) => {
+                if (city && city.name) {
+                  cities.push(city.name);
+                }
+              });
+            }
           });
         }
       });
-    });
-
+    }
+  
     if (cities.length === 0) {
       return res.status(404).json({
         data: [],
