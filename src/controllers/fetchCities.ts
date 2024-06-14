@@ -1,90 +1,20 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { Request,Response } from "express";
-import { __dirname } from "../config/filepath";
-/*
-[
-    {
-        "id": 1,
-        "name": "Afghanistan",
-        "iso3": "AFG",
-        "iso2": "AF",
-        "numeric_code": "004",
-        "phone_code": "93",
-        "capital": "Kabul",
-        "currency": "AFN",
-        "currency_name": "Afghan afghani",
-        "currency_symbol": "؋",
-        "tld": ".af",
-        "native": "افغانستان",
-        "region": "Asia",
-        "region_id": "3",
-        "subregion": "Southern Asia",
-        "subregion_id": "14",
-        "nationality": "Afghan",
-        "timezones": [
-            {
-                "zoneName": "Asia\/Kabul",
-                "gmtOffset": 16200,
-                "gmtOffsetName": "UTC+04:30",
-                "abbreviation": "AFT",
-                "tzName": "Afghanistan Time"
-            }
-        ],
-        "translations": {
-            "kr": "아프가니스탄",
-            "pt-BR": "Afeganistão",
-            "pt": "Afeganistão",
-            "nl": "Afghanistan",
-            "hr": "Afganistan",
-            "fa": "افغانستان",
-            "de": "Afghanistan",
-            "es": "Afganistán",
-            "fr": "Afghanistan",
-            "ja": "アフガニスタン",
-            "it": "Afghanistan",
-            "cn": "阿富汗",
-            "tr": "Afganistan"
-        },
-        "latitude": "33.00000000",
-        "longitude": "65.00000000",
-        "emoji": "🇦🇫",
-        "emojiU": "U+1F1E6 U+1F1EB",
-        "states": [
-            {
-                "id": 3901,
-                "name": "Badakhshan",
-                "state_code": "BDS",
-                "latitude": "36.73477250",
-                "longitude": "70.81199530",
-                "type": null,
-                "cities": [
-                    {
-                        "id": 52,
-                        "name": "Ashkāsham",
-                        "latitude": "36.68333000",
-                        "longitude": "71.53333000"
-                    },
-                    {
-                        "id": 68,
-                        "name": "Fayzabad",
-                        "latitude": "37.11664000",
-                        "longitude": "70.58002000"
-                    },
+import { __dirname } from "../config/filepath.js";
+import {City, State,Country } from "../config/countryInterface.js";
+import { parseArrayParam } from "../utils/parseArrayParam.js";
 
-*/
 
-const countryDataPath = path.join(__dirname, "../data/countryData.json");
+const countryDataPath = path.join(__dirname, "../../countryData.json");
 
-interface city{
-  id:number,
-  namee:string,
-  latitude:string,
-  longitude:string
-}
-const fetchCities = async (req:Request, res:Response) => {
+const fetchCities = async (req:Request, res:Response):Promise<Response> => {
   try {
-    const { country_id, state_id } = req.query as { country_id?: number[], state_id?: number[]};
+
+    const { country_id, state_id } = req.query as { country_id?: string, state_id?: string };
+
+    const parsedCountryId = parseArrayParam(country_id || " ");
+    const parsedStateId = parseArrayParam(state_id || "");
 
     if (!country_id || !state_id) {
       return res.status(400).json({
@@ -95,7 +25,7 @@ const fetchCities = async (req:Request, res:Response) => {
 
     const data = await fs.readFile(countryDataPath , "utf-8");
 
-    const allCountriesData = JSON.parse(data);
+    const allCountriesData :Country[] = JSON.parse(data);
 
     if (!Array.isArray(allCountriesData)) {
       return res.status(500).json({
@@ -104,8 +34,8 @@ const fetchCities = async (req:Request, res:Response) => {
       });
     }
 
-    const matchCountry = allCountriesData.filter((country) =>
-      country_id.includes(country.id)
+    const matchCountry:Country[] = allCountriesData.filter((country:Country) =>
+      parsedCountryId.includes((country.id))
     );
 
     if (matchCountry.length === 0) {
@@ -117,11 +47,11 @@ const fetchCities = async (req:Request, res:Response) => {
     let cities:string[] = [];
 
     if (Array.isArray(matchCountry)) {
-      matchCountry.forEach((country) => {
+      matchCountry.forEach((country:Country) => {
         if (Array.isArray(country.states)) {
-          country.states.forEach((state:any) => {
-            if (state_id.includes(state.id) && Array.isArray(state.cities)) {
-              state.cities.forEach((city:any) => {
+          country.states.forEach((state:State) => {
+            if (parsedStateId.includes(state.id) && Array.isArray(state.cities)) {
+              state.cities.forEach((city:City) => {
                 if (city && city.name) {
                   cities.push(city.name);
                 }
@@ -131,7 +61,7 @@ const fetchCities = async (req:Request, res:Response) => {
         }
       });
     }
-  
+
     if (cities.length === 0) {
       return res.status(404).json({
         data: [],

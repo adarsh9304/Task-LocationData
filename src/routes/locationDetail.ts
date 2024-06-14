@@ -4,7 +4,6 @@ import { fetchStates } from '../controllers/fetchStates.js';
 import { fetchCities } from '../controllers/fetchCities.js';
 
 const router=express.Router();
-
 /*
 http://localhost:3005/api/sites/country
 http://localhost:3005/api/sites/country/states?country_id=[1,2,19]
