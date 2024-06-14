@@ -1,5 +1,5 @@
 import express from 'express';
-import locationDetailRoute from './routes/locationDetail.js';
+import router from './routes/locationDetail';
 
 const app = express();
 
@@ -7,7 +7,7 @@ const PORT = 3005;
 
 app.use(express.json());
 
-app.use('/api/sites/', locationDetailRoute);
+app.use('/api/sites/', router);
 
 app.get('/', (req, res) => {
   res.send('client');

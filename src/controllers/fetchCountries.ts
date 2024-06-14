@@ -1,12 +1,13 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { __dirname } from "../config/filepath.js";
+import { __dirname } from "../config/filepath";
+import { Request,Response } from "express";
 
 const countryDataPath = path.join(__dirname, "../data/countryData.json");
 
-export const fetchCountries = async (req, res) => {
+ export const fetchCountries = async (req:Request, res:Response) => {
   try {
-    const data = await fs.readFile(countryDataPath, 'utf-8');
+    const data = await fs.readFile(countryDataPath , 'utf-8');
     
     const allCountriesData = JSON.parse(data);
     

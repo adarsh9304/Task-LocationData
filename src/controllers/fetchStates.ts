@@ -1,12 +1,13 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { __dirname } from "../config/filepath.js";
+import { __dirname } from "../config/filepath";
+import { Request,Response } from "express";
 
 const countryDataPath = path.join(__dirname, "../data/countryData.json");
 
-export const fetchStates = async (req, res) => {
+ const fetchStates = async (req:Request, res:Response) => {
   try {
-    const {country_id}=req.query;
+    const {country_id}=req.query as {country_id?:number[]};
 
     if (!country_id) {
         return res.status(400).json({ 
@@ -34,12 +35,12 @@ export const fetchStates = async (req, res) => {
       });
     }
 
-    let states = [];
+    let states:string[] = [];
 
     if (Array.isArray(matchCountry)) {
       matchCountry.forEach((country) => {
         if (Array.isArray(country.states)) {
-          country.states.forEach((state) => {
+          country.states.forEach((state:any) => {
             if (state && state.name) {
               states.push(state.name);
             }
@@ -67,3 +68,7 @@ export const fetchStates = async (req, res) => {
     });
   }
 };
+
+export{
+  fetchStates
+}
